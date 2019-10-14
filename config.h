@@ -38,3 +38,5 @@
 
 
 #define TAPPING_TERM 200
+#define DAC_SAMPLE_MAX 25535U
+#define AUDIO_CLICKY
