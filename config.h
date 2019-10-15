@@ -40,3 +40,8 @@
 #define TAPPING_TERM 200
 #define DAC_SAMPLE_MAX 25535U
 #define AUDIO_CLICKY
+
+
+
+#define TAP_CODE_DELAY 25
+#define TAPPING_TOGGLE 2
