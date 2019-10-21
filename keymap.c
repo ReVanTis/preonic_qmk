@@ -29,6 +29,31 @@
 #define PINCODE "This is a pin code"
 #endif
 
+#include "raw_hid.h"
+#include "raw.h"
+
+#define BMV846_1                    H__NOTE(_C6), H__NOTE(_E6), H__NOTE(_G6), H__NOTE(_C7), H__NOTE(_E7), H__NOTE(_G6), H__NOTE(_C7), H__NOTE(_E7), H__NOTE(_C6), H__NOTE(_E6), H__NOTE(_G6), H__NOTE(_C7), H__NOTE(_E7), H__NOTE(_G6), H__NOTE(_C7), H__NOTE(_E7), \
+                                    H__NOTE(_C6), H__NOTE(_D6), H__NOTE(_A6), H__NOTE(_D7), H__NOTE(_F7), H__NOTE(_A6), H__NOTE(_D7), H__NOTE(_F7), H__NOTE(_C6), H__NOTE(_D6), H__NOTE(_A6), H__NOTE(_D7), H__NOTE(_F7), H__NOTE(_A6), H__NOTE(_D7), H__NOTE(_F7), \
+                                    H__NOTE(_A5), H__NOTE(_D6), H__NOTE(_G6), H__NOTE(_D7), H__NOTE(_F7), H__NOTE(_G6), H__NOTE(_D7), H__NOTE(_F7), H__NOTE(_A5), H__NOTE(_D6), H__NOTE(_G6), H__NOTE(_D7), H__NOTE(_F7), H__NOTE(_G6), H__NOTE(_D7), H__NOTE(_F7), \
+                                    H__NOTE(_C6), H__NOTE(_E6), H__NOTE(_G6), H__NOTE(_C7), H__NOTE(_E7), H__NOTE(_G6), H__NOTE(_C7), H__NOTE(_E7), H__NOTE(_C6), H__NOTE(_E6), H__NOTE(_G6), H__NOTE(_C7), H__NOTE(_E7), H__NOTE(_G6), H__NOTE(_C7), H__NOTE(_E7),
+
+#define SYM9_4TH                    
+
+#define MY_CAPS_LOCK_ON_SOUND       Q__NOTE(_C5), Q__NOTE(_E5), Q__NOTE(_G5), Q__NOTE(_C6),
+#define MY_CAPS_LOCK_OFF_SOUND      Q__NOTE(_C6), Q__NOTE(_G5), Q__NOTE(_E5), Q__NOTE(_C5),
+#define MY_SCROLL_LOCK_ON_SOUND     Q__NOTE(_C4), Q__NOTE(_E4), Q__NOTE(_G4), Q__NOTE(_C5),
+#define MY_SCROLL_LOCK_OFF_SOUND    Q__NOTE(_C5), Q__NOTE(_G4), Q__NOTE(_E4), Q__NOTE(_C4),
+#define MY_NUM_LOCK_ON_SOUND        Q__NOTE(_C6), Q__NOTE(_E6), Q__NOTE(_G6), Q__NOTE(_C7),
+#define MY_NUM_LOCK_OFF_SOUND       Q__NOTE(_C7), Q__NOTE(_G6), Q__NOTE(_E6), Q__NOTE(_C6),
+float bmv846_1 [][2]       = SONG(BMV846_1);
+
+float tone_caps_on[][2]    = SONG(MY_CAPS_LOCK_ON_SOUND);
+float tone_caps_off[][2]   = SONG(MY_CAPS_LOCK_OFF_SOUND);
+float tone_numlk_on[][2]   = SONG(MY_NUM_LOCK_ON_SOUND);
+float tone_numlk_off[][2]  = SONG(MY_NUM_LOCK_OFF_SOUND);
+float tone_scroll_on[][2]  = SONG(MY_SCROLL_LOCK_ON_SOUND);
+float tone_scroll_off[][2] = SONG(MY_SCROLL_LOCK_OFF_SOUND);
+
 enum preonic_layers {
   _QWERTY,
   _LOWER,
@@ -44,6 +69,7 @@ enum preonic_keycodes {
   RAISE,
   FN,
   BACKLIT,
+  BACH,
   PASSWD,
   PINCD,
 };
@@ -51,6 +77,19 @@ enum preonic_keycodes {
 enum {
     TD_ESC_CAPS = 0
 };
+
+#define ENCDR_CLKWS_QWERTY KC_PGDN
+#define ENCDR_NLKWS_QWERTY KC_PGUP
+
+#define ENCDR_CLKWS_LOWER KC_VOLU
+#define ENCDR_NLKWS_LOWER KC_VOLD
+
+#define ENCDR_CLKWS_RAISE KC_MNXT
+#define ENCDR_NLKWS_RAISE KC_MPRV
+
+#define ENCDR_CLKWS_FN KC_MS_WH_DOWN
+#define ENCDR_NLKWS_FN KC_MS_WH_UP
+
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -76,7 +115,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 /* Lower
  * ,-----------------------------------------------------------------------------------.
- * |      |      |      |      |      |      |      |      |   -  |   =  |   \  | Bksp |
+ * | MUTE |      |      |      |      |      |      |      |   -  |   =  |   \  | Bksp |
  * |------+------+------+------+------+-------------+------+------+------+------+------|
  * |   `  |      |      |      |      |      |      |      |  Up  |   [  |   ]  |  INS |
  * |------+------+------+------+------+-------------+------+------+------+------+------|
@@ -88,7 +127,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------------------------------------------------------'
  */
 [_LOWER] = LAYOUT_preonic_grid( \
-  _______, _______, _______, _______, _______, _______, _______, _______, KC_MINS, KC_EQL,  KC_BSLS, KC_BSPC, \
+  KC_MUTE, _______, _______, _______, _______, _______, _______, _______, KC_MINS, KC_EQL,  KC_BSLS, KC_BSPC, \
   KC_GRV , _______, _______, _______, _______, _______, _______, _______, KC_UP  , KC_LBRC, KC_RBRC, KC_INS,  \
   _______, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_LEFT, KC_DOWN, KC_RGHT, _______, _______, \
   _______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  _______, _______, KC_COMM, KC_PGUP, _______, \
@@ -97,7 +136,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 /* Raise
  * ,-----------------------------------------------------------------------------------.
- * |      |      |      |      |      |      |      |      |   _  |   +  |   |  | Bksp |
+ * | PLAY |      |      |      |      |      |      |      |   _  |   +  |   |  | Bksp |
  * |------+------+------+------+------+-------------+------+------+------+------+------|
  * |   ~  |      |      |      |      |      |      |      |  Up  |   {  |   }  |  INS |
  * |------+------+------+------+------+-------------+------+------+------+------+------|
@@ -109,7 +148,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------------------------------------------------------'
  */
 [_RAISE] = LAYOUT_preonic_grid( \
-  _______, _______, _______, _______, _______, _______, _______, _______, KC_UNDS, KC_PLUS, KC_PIPE, KC_BSPC, \
+  KC_MPLY, _______, _______, _______, _______, _______, _______, _______, KC_UNDS, KC_PLUS, KC_PIPE, KC_BSPC, \
   KC_TILD, _______, _______, _______, _______, _______, _______, _______, KC_UP  , KC_LCBR, KC_RCBR, KC_INS,  \
   _______, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_LEFT, KC_DOWN, KC_RGHT, _______, _______, \
   _______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  _______, _______, KC_COMM, KC_PGUP, _______, \
@@ -139,7 +178,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 /* Adjust (Lower + Raise)
  * ,-----------------------------------------------------------------------------------.
- * |      |PASSWD| PINCD|      |      |      |      |      |      |      |      |      |
+ * | BACH |PASSWD| PINCD|      |      |      |      |      |      |      |      |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * |      | Reset|      |      |      |      |      |      |      |      |      |  Del |
  * |------+------+------+------+------+-------------+------+------+------+------+------|
@@ -151,68 +190,55 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------------------------------------------------------'
  */
 [_ADJUST] = LAYOUT_preonic_grid( \
-  _______, PASSWD , PINCD,   _______, _______, _______, _______, _______, _______, _______, _______, _______,  \
-  _______, RESET,   DEBUG,   _______, _______, _______, _______, TERM_ON, TERM_OFF,_______, _______, KC_INS,  \
-  _______, _______, MU_MOD,  AU_ON,   AU_OFF,  _______, _______, _______, _______, _______, _______, _______, \
-  _______, MUV_DE,  MUV_IN,  MU_ON,   MU_OFF,  MI_ON,   MI_OFF,  CK_TOGG, CK_UP  , CK_DOWN, _______, _______, \
+  BACH   , PASSWD , PINCD,   _______, _______, _______, _______, KC_P7,   KC_P8,   KC_P9,   KC_PPLS, _______,  \
+  _______, RESET,   DEBUG,   TERM_ON, TERM_OFF,_______, _______, KC_P4,   KC_P5,   KC_P6,   KC_PMNS, KC_INS,  \
+  _______, CK_TOGG, MU_MOD,  AU_ON,   AU_OFF,  _______, _______, KC_P1,   KC_P2,   KC_P3,   KC_PAST, KC_PSLS, \
+  _______, MUV_DE,  MUV_IN,  MU_ON,   MU_OFF,  MI_ON,   MI_OFF,  KC_P0,   KC_NLCK, KC_PDOT, _______, _______, \
   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______  \
 )
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
-        case LOWER:
-          if (record->event.pressed) {
-            layer_on(_LOWER);
-            update_tri_layer(_LOWER, _RAISE, _ADJUST);
-          } else {
-            layer_off(_LOWER);
-            update_tri_layer(_LOWER, _RAISE, _ADJUST);
-          }
-          return false;
-          break;
-        case RAISE:
-          if (record->event.pressed) {
-            layer_on(_RAISE);
-            update_tri_layer(_LOWER, _RAISE, _ADJUST);
-          } else {
-            layer_off(_RAISE);
-            update_tri_layer(_LOWER, _RAISE, _ADJUST);
-          }
-          return false;
-          break;
-        case BACKLIT:
-          if (record->event.pressed) {
-            register_code(KC_RSFT);
-            #ifdef BACKLIGHT_ENABLE
-              backlight_step();
-            #endif
-            #ifdef __AVR__
-            PORTE &= ~(1<<6);
-            #endif
-          } else {
-            unregister_code(KC_RSFT);
-            #ifdef __AVR__
-            PORTE |= (1<<6);
-            #endif
-          }
-          return false;
-          break;
-    case PASSWD:
-        if (record -> event.pressed) {}
-        else
-        {
-            SEND_STRING(PASSWORD);
-        }
-        break;
-    case PINCD:
-        if (record -> event.pressed) {}
-        else
-        {
-            SEND_STRING(PINCODE);
-        }
-        break;
+    case LOWER:
+      if (record->event.pressed) {
+        layer_on(_LOWER);
+        update_tri_layer(_LOWER, _RAISE, _ADJUST);
+      } else {
+        layer_off(_LOWER);
+        update_tri_layer(_LOWER, _RAISE, _ADJUST);
       }
+      return false;
+      break;
+    case RAISE:
+      if (record->event.pressed) {
+        layer_on(_RAISE);
+        update_tri_layer(_LOWER, _RAISE, _ADJUST);
+      } else {
+        layer_off(_RAISE);
+        update_tri_layer(_LOWER, _RAISE, _ADJUST);
+      }
+      return false;
+      break;
+    case PASSWD:
+      if (record -> event.pressed) {}
+      else {
+          SEND_STRING(PASSWORD);
+      }
+      break;
+    case BACH:
+      if (record -> event.pressed) {}
+      else {
+          PLAY_SONG(bmv846_1);
+      }
+      break;
+    case PINCD:
+      if (record -> event.pressed) {}
+      else {
+          SEND_STRING(PINCODE);
+      }
+      break;
+    }
     return true;
 };
 
@@ -240,24 +266,24 @@ void encoder_update_user(uint8_t index, bool clockwise) {
   } else {
     if (IS_LAYER_ON(_LOWER)) {
       if (clockwise)
-          tap_code(KC_VOLU);
+          tap_code(ENCDR_CLKWS_LOWER);
       else 
-          tap_code(KC_VOLD);
+          tap_code(ENCDR_NLKWS_LOWER);
     } else if (IS_LAYER_ON(_RAISE)) {
       if (clockwise)
-          tap_code(KC_MNXT);
+          tap_code(ENCDR_CLKWS_RAISE);
       else 
-          tap_code(KC_MPRV);
+          tap_code(ENCDR_NLKWS_RAISE);
     } else if (IS_LAYER_ON(_FN)) {
       if (clockwise)
-          tap_code(KC_MS_WH_DOWN);
+          tap_code(ENCDR_CLKWS_FN);
       else 
-          tap_code(KC_MS_WH_UP);
+          tap_code(ENCDR_NLKWS_FN);
     } else {
       if (clockwise)
-          tap_code(KC_PGDN);
+          tap_code(ENCDR_CLKWS_QWERTY);
       else 
-          tap_code(KC_PGUP);
+          tap_code(ENCDR_NLKWS_QWERTY);
     }
   }
 }
@@ -311,6 +337,102 @@ bool music_mask_user(uint16_t keycode) {
       return true;
   }
 }
+
+void raw_hid_receive( uint8_t *data, uint8_t length )
+{
+    uint8_t *command_id = &(data[0]);
+    uint8_t *command_data = &(data[1]);
+    switch ( *command_id )
+    {
+        case RAW_COMMAND_GET_PROTOCOL_VERSION: //0x01(id) 0x00(payload_length)
+        {
+            *command_id =RAW_COMMAND_GET_PROTOCOL_VERSION;
+            command_data[0]=0x01;
+            command_data[1]=PROTOCOL_VERSION;
+            break;
+        }
+        case RAW_COMMAND_ENABLE_KEY_EVENT_REPORT: //0x02 0x00
+        {
+            key_event_report=true;
+            *command_id=RAW_COMMAND_ENABLE_KEY_EVENT_REPORT;
+            command_data[0]=0x01;
+            command_data[1]=SUCCESS;
+            break;
+        }
+        case RAW_COMMAND_DISABLE_KEY_EVENT_REPORT: //0x03 0x00
+        {
+            key_event_report=false;
+            *command_id=RAW_COMMAND_DISABLE_KEY_EVENT_REPORT;
+            command_data[0]=0x01;
+            command_data[1]=SUCCESS;
+            break;
+        }
+        case RAW_COMMAND_HEARTBEAT_PING: // 0x04 0x01 (heartbeat seq no.)
+        {
+            // do nothing and return the original message.
+            break;
+        }
+        case RAW_COMMAND_CHANGE_COLOR: // 0x05 0x03 0xRR 0xGG 0xBB
+        {
+            // Not Implemented on Preonic
+            command_data[0]=0x01;
+            command_data[1]=FAILED;
+            break;
+        }
+        default: //0xff ...
+        {
+            *command_id=RAW_COMMAND_UNDEFINED;
+            command_data[0]=0x01;
+            command_data[1]=FAILED;
+            break;
+        }
+    }
+    raw_hid_send(data,length);
+}
+
+void led_set_user(uint8_t usb_led)
+{
+    static uint8_t old_usb_led = 0;
+
+    //_delay_ms(10); // gets rid of tick
+
+    if (!is_playing_notes())
+    {
+        if ((usb_led & (1<<USB_LED_CAPS_LOCK)) && !(old_usb_led & (1<<USB_LED_CAPS_LOCK)))
+        {
+                // If CAPS LK LED is turning on...
+                PLAY_SONG(tone_caps_on);
+        }
+        else if (!(usb_led & (1<<USB_LED_CAPS_LOCK)) && (old_usb_led & (1<<USB_LED_CAPS_LOCK)))
+        {
+                // If CAPS LK LED is turning off...
+                PLAY_SONG(tone_caps_off);
+        }
+        else if ((usb_led & (1<<USB_LED_NUM_LOCK)) && !(old_usb_led & (1<<USB_LED_NUM_LOCK)))
+        {
+                // If NUM LK LED is turning on...
+                PLAY_SONG(tone_numlk_on);
+        }
+        else if (!(usb_led & (1<<USB_LED_NUM_LOCK)) && (old_usb_led & (1<<USB_LED_NUM_LOCK)))
+        {
+                // If NUM LED is turning off...
+                PLAY_SONG(tone_numlk_off);
+        }
+        else if ((usb_led & (1<<USB_LED_SCROLL_LOCK)) && !(old_usb_led & (1<<USB_LED_SCROLL_LOCK)))
+        {
+                // If SCROLL LK LED is turning on...
+                PLAY_SONG(tone_scroll_on);
+        }
+        else if (!(usb_led & (1<<USB_LED_SCROLL_LOCK)) && (old_usb_led & (1<<USB_LED_SCROLL_LOCK)))
+        {
+                // If SCROLL LED is turning off...
+                PLAY_SONG(tone_scroll_off);
+        }
+    }
+
+    old_usb_led = usb_led;
+}
+
 
 qk_tap_dance_action_t tap_dance_actions[] = {
     [TD_ESC_CAPS]  = ACTION_TAP_DANCE_DOUBLE(KC_ESC, KC_CAPS)
