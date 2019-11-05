@@ -54,6 +54,20 @@ float tone_numlk_off[][2]  = SONG(MY_NUM_LOCK_OFF_SOUND);
 float tone_scroll_on[][2]  = SONG(MY_SCROLL_LOCK_ON_SOUND);
 float tone_scroll_off[][2] = SONG(MY_SCROLL_LOCK_OFF_SOUND);
 
+int matrix [10][6] = {
+{ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05 },
+{ 0x10, 0x11, 0x12, 0x13, 0x14, 0x15 },
+{ 0x20, 0x21, 0x22, 0x23, 0x24, 0x25 },
+{ 0x30, 0x31, 0x32, 0x33, 0x34, 0x35 },
+{ 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b },
+{ 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b },
+{ 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b },
+{ 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b },
+{ 0x40, 0x41, 0x42, 0x49, 0x4a, 0x4b },
+{ 0x46, 0x47, 0x48, 0x43, 0x44, 0x45 }};
+
+
+
 enum preonic_layers {
   _QWERTY,
   _LOWER,
@@ -199,6 +213,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  if(key_event_report && record -> event.pressed) // only sent when pressed
+  {
+    keypos_t key = record->event.key;
+    uint8_t report[RAW_EPSIZE];
+    report[0] = RAW_COMMAND_REPORT_KEY_EVENT;
+    report[1] = 0x02;
+    int pos = matrix[key.row][key.col];
+    report[2] = pos % 0x10;
+    report[3] = pos / 0x10;
+    raw_hid_send(report,RAW_EPSIZE);
+  }
   switch (keycode) {
     case LOWER:
       if (record->event.pressed) {
