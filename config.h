@@ -45,3 +45,5 @@
 
 #define TAP_CODE_DELAY 20
 #define TAPPING_TOGGLE 2
+
+#define RGBLIGHT_LED_MAP { 4, 0, 1, 2 ,3 ,5 ,6 ,7 ,8 }
