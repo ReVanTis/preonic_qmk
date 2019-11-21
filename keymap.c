@@ -104,6 +104,8 @@ enum {
 #define ENCDR_CLKWS_FN KC_MS_WH_DOWN
 #define ENCDR_NLKWS_FN KC_MS_WH_UP
 
+#define ENCDR_CLKWS_ADJUST RGB_MOD
+#define ENCDR_NLKWS_ADJUST RGB_RMOD
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -192,7 +194,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 /* Adjust (Lower + Raise)
  * ,-----------------------------------------------------------------------------------.
- * | BACH |PASSWD| PINCD|      |      |      |      |      |      |      |      |      |
+ * |RGBTOG|PASSWD| PINCD| BACH |      |      |      |      |      |      |      |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * |      | Reset|      |      |      |      |      |      |      |      |      |  Del |
  * |------+------+------+------+------+-------------+------+------+------+------+------|
@@ -204,7 +206,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------------------------------------------------------'
  */
 [_ADJUST] = LAYOUT_preonic_grid( \
-  BACH   , PASSWD , PINCD,   RGB_TOG, RGB_MOD, RGB_HUI, RGB_HUD, KC_P7,   KC_P8,   KC_P9,   KC_PPLS, _______,  \
+  RGB_TOG, PASSWD , PINCD,   BACH   , _______, RGB_HUI, RGB_HUD, KC_P7,   KC_P8,   KC_P9,   KC_PPLS, _______,  \
   _______, RESET,   DEBUG,   RGB_SAI, RGB_SAD, RGB_VAI, RGB_VAD, KC_P4,   KC_P5,   KC_P6,   KC_PMNS, KC_INS,  \
   _______, CK_TOGG, MU_MOD,  AU_ON,   AU_OFF,  _______, _______, KC_P1,   KC_P2,   KC_P3,   KC_PAST, KC_PSLS, \
   _______, MUV_DE,  MUV_IN,  MU_ON,   MU_OFF,  MI_ON,   MI_OFF,  KC_P0,   KC_NLCK, KC_PDOT, _______, _______, \
@@ -293,7 +295,12 @@ void encoder_update_user(uint8_t index, bool clockwise) {
       }
     }
   } else {
-    if (IS_LAYER_ON(_LOWER)) {
+    if (IS_LAYER_ON(_ADJUST)) {
+      if (clockwise)
+          rgblight_step();
+      else 
+          rgblight_step_reverse();
+    } else if (IS_LAYER_ON(_LOWER)) {
       if (clockwise)
           tap_code(ENCDR_CLKWS_LOWER);
       else 
