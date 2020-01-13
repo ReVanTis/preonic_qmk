@@ -434,9 +434,9 @@ void led_set_user(uint8_t usb_led)
 {
     static uint8_t old_usb_led = 0;
 
-    //_delay_ms(10); // gets rid of tick
+    //wait_ms(10); // gets rid of tick
 
-    if (!is_playing_notes())
+    //if (!is_playing_notes())
     {
         if ((usb_led & (1<<USB_LED_CAPS_LOCK)) && !(old_usb_led & (1<<USB_LED_CAPS_LOCK)))
         {

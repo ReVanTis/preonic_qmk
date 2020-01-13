@@ -47,3 +47,4 @@
 #define TAPPING_TOGGLE 2
 
 #define RGBLIGHT_LED_MAP { 4, 0, 1, 2 ,3 ,5 ,6 ,7 ,8 }
+#define AUDIO_CLICKY_FREQ_RANDOMNESS 0.2f
