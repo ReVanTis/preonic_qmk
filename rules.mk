@@ -20,4 +20,4 @@ MOUSEKEY_ENABLE = yes
 RAW_ENABLE = yes
 SRC += muse.c
 RGBLIGHT_ENABLE = yes
-NKRO_ENABLE = no
+#NKRO_ENABLE = no
