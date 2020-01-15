@@ -58,7 +58,7 @@ float tone_numlk_off[][2]  = SONG(MY_NUM_LOCK_OFF_SOUND);
 float tone_scroll_on[][2]  = SONG(MY_SCROLL_LOCK_ON_SOUND);
 float tone_scroll_off[][2] = SONG(MY_SCROLL_LOCK_OFF_SOUND);
 
-int matrix [10][6] = {
+int mappingmatrix [10][6] = {
 { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05 },
 { 0x10, 0x11, 0x12, 0x13, 0x14, 0x15 },
 { 0x20, 0x21, 0x22, 0x23, 0x24, 0x25 },
@@ -228,7 +228,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     uint8_t report[RAW_EPSIZE];
     report[0] = RAW_COMMAND_REPORT_KEY_EVENT;
     report[1] = 0x02;
-    int pos = matrix[key.row][key.col];
+    int pos = mappingmatrix[key.row][key.col];
     report[2] = pos % 0x10;
     report[3] = pos / 0x10;
     raw_hid_send(report,RAW_EPSIZE);
