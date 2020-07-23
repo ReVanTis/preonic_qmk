@@ -29,13 +29,6 @@
 #define PINCODE "This is a pin code"
 #endif
 
-#include "raw_hid.h"
-#include "raw.h"
-
-#ifndef RAW_EPSIZE
-#define RAW_EPSIZE 32
-#endif
-
 #define BMV846_1                    H__NOTE(_C6), H__NOTE(_E6), H__NOTE(_G6), H__NOTE(_C7), H__NOTE(_E7), H__NOTE(_G6), H__NOTE(_C7), H__NOTE(_E7), H__NOTE(_C6), H__NOTE(_E6), H__NOTE(_G6), H__NOTE(_C7), H__NOTE(_E7), H__NOTE(_G6), H__NOTE(_C7), H__NOTE(_E7), \
                                     H__NOTE(_C6), H__NOTE(_D6), H__NOTE(_A6), H__NOTE(_D7), H__NOTE(_F7), H__NOTE(_A6), H__NOTE(_D7), H__NOTE(_F7), H__NOTE(_C6), H__NOTE(_D6), H__NOTE(_A6), H__NOTE(_D7), H__NOTE(_F7), H__NOTE(_A6), H__NOTE(_D7), H__NOTE(_F7), \
                                     H__NOTE(_A5), H__NOTE(_D6), H__NOTE(_G6), H__NOTE(_D7), H__NOTE(_F7), H__NOTE(_G6), H__NOTE(_D7), H__NOTE(_F7), H__NOTE(_A5), H__NOTE(_D6), H__NOTE(_G6), H__NOTE(_D7), H__NOTE(_F7), H__NOTE(_G6), H__NOTE(_D7), H__NOTE(_F7), \
@@ -222,17 +215,6 @@ void keyboard_post_init_user() {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  if(key_event_report && record -> event.pressed) // only sent when pressed
-  {
-    keypos_t key = record->event.key;
-    uint8_t report[RAW_EPSIZE];
-    report[0] = RAW_COMMAND_REPORT_KEY_EVENT;
-    report[1] = 0x02;
-    int pos = mappingmatrix[key.row][key.col];
-    report[2] = pos % 0x10;
-    report[3] = pos / 0x10;
-    raw_hid_send(report,RAW_EPSIZE);
-  }
   switch (keycode) {
     case LOWER:
       if (record->event.pressed) {
@@ -378,57 +360,6 @@ bool music_mask_user(uint16_t keycode) {
   }
 }
 
-void raw_hid_receive( uint8_t *data, uint8_t length )
-{
-    uint8_t *command_id = &(data[0]);
-    uint8_t *command_data = &(data[1]);
-    switch ( *command_id )
-    {
-        case RAW_COMMAND_GET_PROTOCOL_VERSION: //0x01(id) 0x00(payload_length)
-        {
-            *command_id =RAW_COMMAND_GET_PROTOCOL_VERSION;
-            command_data[0]=0x01;
-            command_data[1]=PROTOCOL_VERSION;
-            break;
-        }
-        case RAW_COMMAND_ENABLE_KEY_EVENT_REPORT: //0x02 0x00
-        {
-            key_event_report=true;
-            *command_id=RAW_COMMAND_ENABLE_KEY_EVENT_REPORT;
-            command_data[0]=0x01;
-            command_data[1]=SUCCESS;
-            break;
-        }
-        case RAW_COMMAND_DISABLE_KEY_EVENT_REPORT: //0x03 0x00
-        {
-            key_event_report=false;
-            *command_id=RAW_COMMAND_DISABLE_KEY_EVENT_REPORT;
-            command_data[0]=0x01;
-            command_data[1]=SUCCESS;
-            break;
-        }
-        case RAW_COMMAND_HEARTBEAT_PING: // 0x04 0x01 (heartbeat seq no.)
-        {
-            // do nothing and return the original message.
-            break;
-        }
-        case RAW_COMMAND_CHANGE_COLOR: // 0x05 0x03 0xRR 0xGG 0xBB
-        {
-            // Not Implemented on Preonic
-            command_data[0]=0x01;
-            command_data[1]=FAILED;
-            break;
-        }
-        default: //0xff ...
-        {
-            *command_id=RAW_COMMAND_UNDEFINED;
-            command_data[0]=0x01;
-            command_data[1]=FAILED;
-            break;
-        }
-    }
-    raw_hid_send(data,length);
-}
 
 void led_set_user(uint8_t usb_led)
 {
@@ -473,7 +404,3 @@ void led_set_user(uint8_t usb_led)
     old_usb_led = usb_led;
 }
 
-
-qk_tap_dance_action_t tap_dance_actions[] = {
-    [TD_ESC_CAPS]  = ACTION_TAP_DANCE_DOUBLE(KC_ESC, KC_CAPS)
-};

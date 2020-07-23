@@ -23,7 +23,7 @@
    - MIDI notes can be sent when in Music mode is on
 */
 
-#define MIDI_BASIC
+//#define MIDI_BASIC
 
 /* enable advanced MIDI features:
    - MIDI notes can be added to the keymap
@@ -41,10 +41,9 @@
 #define DAC_SAMPLE_MAX 1530U
 #define AUDIO_CLICKY
 
-
-
 #define TAP_CODE_DELAY 20
 #define TAPPING_TOGGLE 2
 
 #define RGBLIGHT_LED_MAP { 4, 0, 1, 2 ,3 ,5 ,6 ,7 ,8 }
 #define AUDIO_CLICKY_FREQ_RANDOMNESS 0.2f
+#define DYNAMIC_KEYMAP_LAYER_COUNT 5
