@@ -13,11 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
+NKRO_ENABLE = yes
 UNICODE_ENABLE = yes
 TAP_DANCE_ENABLE = yes
-MOUSEKEY_ENABLE = yes
-RAW_ENABLE = yes
+RAW_ENABLE = no
 SRC += muse.c
 RGBLIGHT_ENABLE = yes
-#NKRO_ENABLE = no
+VIRTSER_ENABLE = no
+MOUSEKEY_ENABLE = yes
+CONSOLE_ENABLE = no
+COMMAND_ENABLE = no

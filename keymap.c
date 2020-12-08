@@ -29,8 +29,24 @@
 #define PINCODE "This is a pin code"
 #endif
 
-#include "raw_hid.h"
+#ifdef VIRTSER_ENABLE
+#include "virtser.h"
+void virtser_sendn(uint8_t * byte_base, uint8_t length) {
+    for( int i = 0; i< length ; i++) {
+        virtser_send(byte_base[i]);
+    }
+}
+#ifndef RAW_PROTOCOL
 #include "raw.h"
+#endif
+#endif // VIRTSER_ENABLE
+
+#ifdef RAW_ENABLE
+#include "raw_hid.h"
+#ifndef RAW_PROTOCOL
+#include "raw.h"
+#endif
+#endif // RAW_ENABLE
 
 #ifndef RAW_EPSIZE
 #define RAW_EPSIZE 32
@@ -222,6 +238,7 @@ void keyboard_post_init_user() {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+#ifdef RAW_PROTOCOL
   if(key_event_report && record -> event.pressed) // only sent when pressed
   {
     keypos_t key = record->event.key;
@@ -231,8 +248,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     int pos = mappingmatrix[key.row][key.col];
     report[2] = pos % 0x10;
     report[3] = pos / 0x10;
+#ifdef RAW_ENABLE
     raw_hid_send(report,RAW_EPSIZE);
+#endif
+#ifdef VIRTSER_ENABLE
+    virtser_sendn(report, 4);
+#endif
   }
+#endif
+
   switch (keycode) {
     case LOWER:
       if (record->event.pressed) {
@@ -378,6 +402,127 @@ bool music_mask_user(uint16_t keycode) {
   }
 }
 
+#ifdef VIRTSER_ENABLE
+
+enum VIRTSER_STATE_ENUM
+{
+    READY_FOR_CMD_BYTE=0x00,
+    READY_FOR_LENGTH_BYTE=0x01,
+    READY_FOR_PAYLOAD_BYTES=0x02,
+};
+uint8_t VIRTSER_STATE = READY_FOR_CMD_BYTE;
+uint8_t CURRENT_VIRTSER_COMMAND = 0;
+uint8_t CURRENT_VIRTSER_PAYLOAD_LENGTH = 0;
+uint8_t CURRENT_VIRTSER_PAYLOAD_READ = 0;
+uint8_t VIRTSER_RECV_BUFFER[RAW_EPSIZE];
+
+void virtser_process_cmd(void)
+{
+  uint8_t VIRTSER_SEND_BUFFER[RAW_EPSIZE];
+  uint8_t *command_id = &(VIRTSER_SEND_BUFFER[0]);
+  uint8_t *command_len= &(VIRTSER_SEND_BUFFER[1]);
+  uint8_t *command_data = &(VIRTSER_SEND_BUFFER[2]);
+  switch ( CURRENT_VIRTSER_COMMAND )
+  {
+    case RAW_COMMAND_GET_PROTOCOL_VERSION: //0x01(id) 0x00(payload_length)
+    {
+        *command_id =RAW_COMMAND_GET_PROTOCOL_VERSION;
+        *command_len=0x01;
+        command_data[0]=PROTOCOL_VERSION;
+        break;
+    }
+    case RAW_COMMAND_ENABLE_KEY_EVENT_REPORT: //0x02 0x00
+    {
+        key_event_report=true;
+        *command_id=RAW_COMMAND_ENABLE_KEY_EVENT_REPORT;
+        *command_len=0x01;
+        command_data[0]=SUCCESS;
+        break;
+    }
+    case RAW_COMMAND_DISABLE_KEY_EVENT_REPORT: //0x03 0x00
+    {
+        key_event_report=false;
+        *command_id=RAW_COMMAND_DISABLE_KEY_EVENT_REPORT;
+        *command_len=0x01;
+        command_data[0]=SUCCESS;
+        break;
+    }
+    case RAW_COMMAND_HEARTBEAT_PING: // 0x04 0x01 (heartbeat seq no.)
+    {
+        // do nothing and return the original message.
+        *command_id=RAW_COMMAND_HEARTBEAT_PING;
+        *command_len=0x01;
+        command_data[0]=VIRTSER_RECV_BUFFER[0];
+        break;
+    }
+    case RAW_COMMAND_CHANGE_COLOR: // 0x05 0x03 0xRR 0xGG 0xBB
+    {
+        // Not Implemented on Preonic
+        *command_len=0x01;
+        command_data[0]=FAILED;
+        break;
+    }
+    default: //0xff ...
+    {
+        *command_id=RAW_COMMAND_UNDEFINED;
+        *command_len=0x01;
+        command_data[0]=FAILED;
+        break;
+    }
+  }
+  virtser_sendn(VIRTSER_SEND_BUFFER, *command_len + 2);
+}
+
+void virtser_recv( uint8_t data ) 
+{
+  switch(VIRTSER_STATE)
+  {
+    case READY_FOR_CMD_BYTE:
+    {
+      CURRENT_VIRTSER_COMMAND = data;
+      VIRTSER_STATE = READY_FOR_LENGTH_BYTE;
+      break;
+    }
+    case READY_FOR_LENGTH_BYTE:
+    {
+      CURRENT_VIRTSER_PAYLOAD_LENGTH = data;
+      if(CURRENT_VIRTSER_PAYLOAD_LENGTH == 0)
+      {
+        virtser_process_cmd();
+        VIRTSER_STATE = READY_FOR_CMD_BYTE;
+        CURRENT_VIRTSER_COMMAND = 0;
+        CURRENT_VIRTSER_PAYLOAD_LENGTH = 0;
+        CURRENT_VIRTSER_PAYLOAD_READ = 0;
+      }
+      else
+      {
+        VIRTSER_STATE = READY_FOR_PAYLOAD_BYTES;
+      }
+      break;
+    }
+    case READY_FOR_PAYLOAD_BYTES:
+    {
+      if (CURRENT_VIRTSER_PAYLOAD_READ < CURRENT_VIRTSER_PAYLOAD_LENGTH)
+      {
+        VIRTSER_RECV_BUFFER[CURRENT_VIRTSER_PAYLOAD_READ] = data;
+        CURRENT_VIRTSER_PAYLOAD_READ++;
+      }
+      if(CURRENT_VIRTSER_PAYLOAD_READ == CURRENT_VIRTSER_PAYLOAD_LENGTH)
+      {
+        virtser_process_cmd();
+        VIRTSER_STATE = READY_FOR_CMD_BYTE;
+        CURRENT_VIRTSER_COMMAND = 0;
+        CURRENT_VIRTSER_PAYLOAD_LENGTH = 0;
+        CURRENT_VIRTSER_PAYLOAD_READ = 0;
+      }
+      break;
+    }
+  }
+}
+#endif
+
+
+#ifdef RAW_ENABLE
 void raw_hid_receive( uint8_t *data, uint8_t length )
 {
     uint8_t *command_id = &(data[0]);
@@ -429,6 +574,7 @@ void raw_hid_receive( uint8_t *data, uint8_t length )
     }
     raw_hid_send(data,length);
 }
+#endif
 
 void led_set_user(uint8_t usb_led)
 {
