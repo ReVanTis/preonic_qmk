@@ -1,21 +1,35 @@
 #pragma once
 
 #ifdef AUDIO_ENABLE
-    #define AUDIO_INIT_DELAY
-    #define STARTUP_SONG SONG(PREONIC_SOUND)
-    // #define STARTUP_SONG SONG(NO_SOUND)
-
-    #define DEFAULT_LAYER_SONGS { SONG(QWERTY_SOUND), \
-                                  SONG(COLEMAK_SOUND), \
-                                  SONG(DVORAK_SOUND) \
-                                }
-   #ifdef TEMPO_DEFAULT
-      #undef TEMPO_DEFAULT
-      #define TEMPO_DEFAULT 240
+   #define AUDIO_INIT_DELAY
+    
+   #ifdef STARTUP_SONG
+   #undef STARTUP_SONG
    #endif
+   #define STARTUP_SONG SONG(PREONIC_SOUND)
+   //#define STARTUP_SONG SONG(NO_SOUND)
+   
+   #define MY_GOODBYE_SOUND      E__NOTE(_C6), E__NOTE(_G5), E__NOTE(_E5), E__NOTE(_C5), E__NOTE(_C5), E__NOTE(_E5), E__NOTE(_G5), E__NOTE(_C5)
+   #ifdef GOODBYE_SONG
+   #undef GOODBYE_SONG
+   #endif
+   #define GOODBYE_SONG SONG(MY_GOODBYE_SOUND)
+    
+
+   #define DEFAULT_LAYER_SONGS { SONG(QWERTY_SOUND), \
+                                 SONG(COLEMAK_SOUND), \
+                                 SONG(DVORAK_SOUND) \
+                              }
+   #ifdef TEMPO_DEFAULT
+   #undef TEMPO_DEFAULT
+   #endif
+   #define TEMPO_DEFAULT 240
+
    #define AUDIO_DAC_SAMPLE_MAX 1023U
    #define AUDIO_CLICKY
    #define AUDIO_CLICKY_FREQ_RANDOMNESS 0.2f
+
+   //#define AUDIO_VOICES
 #endif
 
 #define MUSIC_MASK (keycode != KC_NO)

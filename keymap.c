@@ -108,9 +108,6 @@ enum preonic_keycodes {
   PINCD,
 };
 
-enum {
-    TD_ESC_CAPS = 0
-};
 
 #define ENCDR_CLKWS_QWERTY KC_PGDN
 #define ENCDR_NLKWS_QWERTY KC_PGUP
@@ -228,8 +225,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_ADJUST] = LAYOUT_preonic_grid( \
   RGB_TOG, PASSWD , PINCD,   BACH   , _______, RGB_HUD, RGB_HUI, KC_P7,   KC_P8,   KC_P9,   KC_PPLS, _______, \
   _______, QK_BOOT, DB_TOGG, _______, _______, RGB_SAD, RGB_SAI, KC_P4,   KC_P5,   KC_P6,   KC_PMNS, _______, \
-  KC_CAPS, AU_TOG,  CK_UP,   _______, _______, RGB_VAD, RGB_VAI, KC_P1,   KC_P2,   KC_P3,   KC_PAST, KC_PSLS, \
-  _______,CK_TOGG,  CK_DOWN, MU_TOG,  MU_MOD,  MUV_DE,  MUV_IN,  KC_P0,   KC_NUM,  KC_PDOT, _______, _______, \
+  KC_CAPS, AU_TOGG, CK_UP,   _______, _______, RGB_VAD, RGB_VAI, KC_P1,   KC_P2,   KC_P3,   KC_PAST, KC_PSLS, \
+  _______, CK_TOGG, CK_DOWN, MU_TOGG, MU_NEXT, AU_PREV, AU_NEXT, KC_P0,   KC_NUM,  KC_PDOT, _______, _______, \
   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______  \
 )
 };
@@ -622,6 +619,3 @@ void led_set_user(uint8_t usb_led)
 }
 
 
-qk_tap_dance_action_t tap_dance_actions[] = {
-    [TD_ESC_CAPS]  = ACTION_TAP_DANCE_DOUBLE(KC_ESC, KC_CAPS)
-};
