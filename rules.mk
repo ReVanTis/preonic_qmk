@@ -22,9 +22,9 @@ SRC += muse.c
 
 #RAW_ENABLE = no
 #VIRTSER_ENABLE = no
-#CONSOLE_ENABLE = yes
-#COMMAND_ENABLE = yes
+CONSOLE_ENABLE = yes
+COMMAND_ENABLE = yes
 
-XAP_ENABLE = yes
+#XAP_ENABLE = yes
 
 KEYMAP_OUTPUT = ~/qmk_firmware/keymap_output
